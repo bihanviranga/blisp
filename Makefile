@@ -1,9 +1,9 @@
 CC = cc
 
 CFLAGS = -std=c99 -Wall
-LFLAGS = -ledit
+LFLAGS = -ledit -lm
 
-SRC = main.c
+SRC = mpc.c main.c
 
 TARGET = main
 TARGET_DIR = build
