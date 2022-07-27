@@ -1,15 +1,17 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-static char input_buffer[2048];
+#include <editline/readline.h>
 
 int main(int argc, char** argv) {
   puts("blisp 0.0.1");
   puts("Press ctrl+c to exit\n");
 
   while (1) {
-    fputs("blisp> ", stdout);
-    fgets(input_buffer, 2048, stdin);
-    printf("Read: %s", input_buffer);
+    char* input = readline("blisp> ");
+    add_history(input);
+    printf("Read: %s\n", input);
+    free(input);
   }
 
   return 0;
