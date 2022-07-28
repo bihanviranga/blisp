@@ -8,7 +8,15 @@
 
 #define BLISP_PRINT_AST
 
-long eval_op(char* operator, long x, long y) {
+// Evalute unary operations
+long eval_unary_op(char* operator, long x) {
+  if (strcmp(operator, "-") == 0) return -x;
+  // TODO: throw syntax error if the operator is not unary.
+  return x;
+}
+
+// Evaluate binary operations
+long eval_binary_op(char* operator, long x, long y) {
   if (strcmp(operator, "+") == 0) return x + y;
   if (strcmp(operator, "-") == 0) return x - y;
   if (strcmp(operator, "*") == 0) return x * y;
@@ -33,11 +41,18 @@ long eval(mpc_ast_t* t) {
   long result = eval(t->children[2]);
 
   // The rest of the children are iterated over and the result
-  // is combined
+  // is combined.
   int i = 3;
-  while (strstr(t->children[i]->tag, "expr")) {
-    result = eval_op(operator, result, eval(t->children[i]));
-    i++;
+  // If there's only one more child, that means the ending tag,
+  // which means this is probably a unary operation.
+  if (i + 1 == t->children_num) {
+    result = eval_unary_op(operator, result);
+  } else {
+    // Otherwise it is evaluted as a binary operation
+    while (strstr(t->children[i]->tag, "expr")) {
+      result = eval_binary_op(operator, result, eval(t->children[i]));
+      i++;
+    }
   }
 
   return result;
