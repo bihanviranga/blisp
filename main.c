@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,6 +13,8 @@ long eval_op(char* operator, long x, long y) {
   if (strcmp(operator, "-") == 0) return x - y;
   if (strcmp(operator, "*") == 0) return x * y;
   if (strcmp(operator, "/") == 0) return x / y;
+  if (strcmp(operator, "%") == 0) return x % y;
+  if (strcmp(operator, "^") == 0) return pow(x, y);
   return 0;
 }
 
@@ -54,7 +57,7 @@ int main(int argc, char** argv) {
     MPCA_LANG_DEFAULT,
     "                                                   \
       number:   /-?[0-9]+/ ;                            \
-      operator: '+' | '-' | '*' | '/' ;                 \
+      operator: '+' | '-' | '*' | '/' | '%' | '^' ;     \
       expr:     <number> | '(' <operator> <expr>+ ')' ; \
       blisp:    /^/ <operator> <expr>+ /$/ ;            \
     ",
