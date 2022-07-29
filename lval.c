@@ -28,6 +28,11 @@ void lval_print(lval val) {
   }
 }
 
+void lval_println(lval val) {
+  lval_print(val);
+  printf("\n");
+}
+
 void lval_print_err(lval val) {
   printf("[ERROR] ");
   switch (val.err) {
@@ -41,5 +46,4 @@ void lval_print_err(lval val) {
       printf("Invalid number");
       break;
   }
-  printf("\n");
 }

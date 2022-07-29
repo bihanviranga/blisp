@@ -3,7 +3,7 @@ CC = cc
 CFLAGS = -std=c99 -Wall
 LFLAGS = -ledit -lm
 
-SRC = mpc.c main.c
+SRC = mpc.c main.c lval.c
 
 TARGET = main
 TARGET_DIR = build

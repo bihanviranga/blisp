@@ -1,35 +1,44 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <editline/readline.h>
 
 #include "mpc.h"
-
-#define BLISP_PRINT_AST
+#include "blisp.h"
+#include "lval.h"
 
 // Evalute unary operations
-long eval_unary_op(char* operator, long x) {
-  if (strcmp(operator, "-") == 0) return -x;
-  // TODO: throw syntax error if the operator is not unary.
-  return x;
+lval eval_unary_op(char* operator, lval x) {
+  if (strcmp(operator, "-") == 0) return lval_num(-x.num);
+
+  return lval_err(LERR_BAD_OP);
 }
 
 // Evaluate binary operations
-long eval_binary_op(char* operator, long x, long y) {
-  if (strcmp(operator, "+") == 0) return x + y;
-  if (strcmp(operator, "-") == 0) return x - y;
-  if (strcmp(operator, "*") == 0) return x * y;
-  if (strcmp(operator, "/") == 0) return x / y;
-  if (strcmp(operator, "%") == 0) return x % y;
-  if (strcmp(operator, "^") == 0) return pow(x, y);
-  return 0;
+lval eval_binary_op(char* operator, lval x, lval y) {
+  if (x.type == LVAL_ERR) return x;
+  if (y.type == LVAL_ERR) return y;
+
+  if (strcmp(operator, "+") == 0) return lval_num(x.num + y.num);
+  if (strcmp(operator, "-") == 0) return lval_num(x.num - y.num);
+  if (strcmp(operator, "*") == 0) return lval_num(x.num * y.num);
+  if (strcmp(operator, "^") == 0) return lval_num(pow(x.num, y.num));
+
+  // Operators below this point require that the second operand is not zero
+  if (y.num == 0) return lval_err(LERR_DIV_ZERO);
+
+  if (strcmp(operator, "/") == 0) return lval_num(x.num / y.num);
+  if (strcmp(operator, "%") == 0) return lval_num(x.num % y.num);
+
+  return lval_err(LERR_BAD_OP);
 }
 
-long eval(mpc_ast_t* t) {
+lval eval(mpc_ast_t* t) {
   // Numbers can be evaluated directly
   if (strstr(t->tag, "number")) {
-    return atoi(t->contents);
+    errno = 0;
+    long value = strtol(t->contents, NULL, 10);
+    return errno != ERANGE ? lval_num(value) : lval_err(LERR_BAD_NUM);
   }
 
   // The operator is the second child
@@ -38,7 +47,7 @@ long eval(mpc_ast_t* t) {
   char* operator = t->children[1]->contents;
 
   // Third child (first operand) is always provided
-  long result = eval(t->children[2]);
+  lval result = eval(t->children[2]);
 
   // The rest of the children are iterated over and the result
   // is combined.
@@ -66,8 +75,6 @@ int main(int argc, char** argv) {
   mpc_parser_t* Blisp = mpc_new("blisp");
 
   // Define the parsers
-  // NOTE: The support for decimals in <number> was added later
-  // and might not be 100% correct.
   mpca_lang(
     MPCA_LANG_DEFAULT,
     "                                                   \
@@ -94,16 +101,18 @@ int main(int argc, char** argv) {
     // Attempt to parse the user input
     // Print the AST if successful
     // Else print the error
-    mpc_result_t result;
-    if (mpc_parse("<stdin>", input, Blisp, &result)) {
+    mpc_result_t mpc_result;
+    if (mpc_parse("<stdin>", input, Blisp, &mpc_result)) {
 #ifdef BLISP_PRINT_AST
-      mpc_ast_print(result.output);
+      mpc_ast_print(mpc_result.output);
 #endif
-      printf("%ld\n", eval(result.output));
-      mpc_ast_delete(result.output);
+      /*printf("%ld\n", eval(result.output).num);*/
+      lval result = eval(mpc_result.output);
+      lval_println(result);
+      mpc_ast_delete(mpc_result.output);
     } else {
-      mpc_err_print(result.error);
-      mpc_err_delete(result.error);
+      mpc_err_print(mpc_result.error);
+      mpc_err_delete(mpc_result.error);
     }
 
     free(input);

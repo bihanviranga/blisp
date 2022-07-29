@@ -23,6 +23,9 @@ lval lval_err(int type);
 // Print an lval
 void lval_print(lval val);
 
+// Print an lval followed by a newline character
+void lval_println(lval val);
+
 // Print an lval error
 void lval_print_err(lval val);
 
