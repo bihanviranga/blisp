@@ -20,4 +20,10 @@ lval lval_num(long num);
 // Create a new lval with the given error type
 lval lval_err(int type);
 
+// Print an lval
+void lval_print(lval val);
+
+// Print an lval error
+void lval_print_err(lval val);
+
 #endif
