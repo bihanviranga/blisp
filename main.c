@@ -70,7 +70,8 @@ lval eval(mpc_ast_t* t) {
 int main(int argc, char** argv) {
   // Create parsers
   mpc_parser_t* Number = mpc_new("number");
-  mpc_parser_t* Operator = mpc_new("operator");
+  mpc_parser_t* Symbol = mpc_new("symbol");
+  mpc_parser_t* Sexpr = mpc_new("sexpr"); // S-Expression
   mpc_parser_t* Expr = mpc_new("expr");
   mpc_parser_t* Blisp = mpc_new("blisp");
 
@@ -79,12 +80,14 @@ int main(int argc, char** argv) {
     MPCA_LANG_DEFAULT,
     "                                                   \
       number:   /-?[0-9]+/ ;                            \
-      operator: '+' | '-' | '*' | '/' | '%' | '^' ;     \
-      expr:     <number> | '(' <operator> <expr>+ ')' ; \
-      blisp:    /^/ <operator> <expr>+ /$/ ;            \
+      symbol:   '+' | '-' | '*' | '/' | '%' | '^' ;     \
+      sexpr:    '(' <expr>* ')' ;                       \
+      expr:     <number> | <symbol> | <sexpr> ;         \
+      blisp:    /^/ <expr>* /$/ ;                       \
     ",
     Number,
-    Operator,
+    Symbol,
+    Sexpr,
     Expr,
     Blisp
   );
@@ -119,7 +122,7 @@ int main(int argc, char** argv) {
   }
 
   // Undefine and delete the parsers
-  mpc_cleanup(4, Number, Operator, Expr, Blisp);
+  mpc_cleanup(4, Number, Symbol, Sexpr, Expr, Blisp);
 
   return 0;
 }

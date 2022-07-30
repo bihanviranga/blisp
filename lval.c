@@ -1,18 +1,29 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "lval.h"
 
-lval lval_num(long num) {
-  lval val;
-  val.type = LVAL_NUM;
-  val.num = num;
+lval* lval_num(long num) {
+  lval* val = malloc(sizeof(lval));
+  val->type = LVAL_NUM;
+  val->num = num;
   return val;
 }
 
-lval lval_err(int type) {
-  lval val;
-  val.type = LVAL_ERR;
-  val.err = type;
+lval* lval_err(char* msg) {
+  lval* val = malloc(sizeof(lval));
+  val->type = LVAL_ERR;
+  val->err = malloc(strlen(msg) + 1);
+  strcpy(val->err, msg);
+  return val;
+}
+
+lval* lval_sym(char* sym) {
+  lval* val = malloc(sizeof(lval));
+  val->type = LVAL_SYM;
+  val->sym = malloc(strlen(sym) + 1);
+  strcpy(val->sym, sym);
   return val;
 }
 
