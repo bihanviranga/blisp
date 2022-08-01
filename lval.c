@@ -66,3 +66,37 @@ void lval_del(lval* val) {
   // Free the memory used by the lval itself
   free(val);
 }
+
+lval* lval_read_num(mpc_ast_t* ast) {
+  errno = 0;
+  long val = strtol(ast->contents, NULL, 10);
+  return errno != ERANGE ? lval_num(val) : lval_err("Invalid number");
+}
+
+lval* lval_read(mpc_ast_t* ast) {
+  if (strstr(ast->tag, "number")) return lval_read_num(ast);
+  if (strstr(ast->tag, "symbol")) return lval_sym(ast->contents);
+
+  // If root ('>') or sexpr then create an empty list
+  lval* val = NULL;
+  if (strcmp(ast->tag, ">") == 0) val = lval_sexpr();
+  if (strcmp(ast->tag, "sexpr") == 0) val = lval_sexpr();
+
+  // Populate the above list with valid expressions
+  for (int i = 0; i < ast->children_num; i++) {
+    if (strcmp(ast->children[i]->contents, "(") == 0) continue;
+    if (strcmp(ast->children[i]->contents, ")") == 0) continue;
+    if (strcmp(ast->tag, "regex") == 0) continue;
+
+    val = lval_add(val, lval_read(ast->children[i]));
+  }
+
+  return val;
+}
+
+lval* lval_add(lval* x, lval* y) {
+  x->count++;
+  x->cell = realloc(x->cell, sizeof(lval*) * x->count);
+  x->cell[x->count - 1] = y;
+  return x;
+}

@@ -1,6 +1,8 @@
 #ifndef BLISP_LVAL_H
 #define BLISP_LVAL_H
 
+#include "mpc.h"
+
 // Represents a number or an error.
 typedef struct lval {
   // lval type as defined in the relevant enum
@@ -44,5 +46,14 @@ void lval_println(lval val);
 
 // Free the memory used by the lval
 void lval_del(lval* lval);
+
+// Read a number from the AST
+lval* lval_read_num(mpc_ast_t* ast);
+
+// Read the AST recursively and create a containing lval
+lval* lval_read(mpc_ast_t* ast);
+
+// Add the lval y to lval x's cells list
+lval* lval_add(lval* x, lval* y);
 
 #endif
