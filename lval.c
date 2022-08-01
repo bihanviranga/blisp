@@ -34,7 +34,7 @@ void lval_print(lval val) {
       break;
 
     case LVAL_ERR:
-      lval_print_err(val);
+      printf("[ERROR] %s", val.err);
       break;
   }
 }
@@ -44,17 +44,25 @@ void lval_println(lval val) {
   printf("\n");
 }
 
-void lval_print_err(lval val) {
-  printf("[ERROR] ");
-  switch (val.err) {
-    case LERR_DIV_ZERO:
-      printf("Division by zero");
-      break;
-    case LERR_BAD_OP:
-      printf("Invalid operator");
-      break;
-    case LERR_BAD_NUM:
-      printf("Invalid number");
+void lval_del(lval* val) {
+  switch(val->type) {
+    // Do nothing for numbers
+    case LVAL_NUM:  break;
+
+    // lval types that use strings
+    case LVAL_ERR:  free(val->err);  break;
+    case LVAL_SYM:  free(val->sym);  break;
+
+    // For S-Expressions, delete its child elements
+    case LVAL_SEXPR:
+      for (int i = 0; i < val->count; i++) {
+        lval_del(val->cell[i]);
+      }
+      // and free the memory allocated to the pointer array
+      free(val->cell);
       break;
   }
+
+  // Free the memory used by the lval itself
+  free(val);
 }

@@ -24,10 +24,6 @@ typedef struct lval {
 // Represents the type for lval.type
 enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR };
 
-// Represents the type for lval.err
-// TODO: can this be removed now?
-enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
-
 // Create a new lval from a number
 lval* lval_num(long num);
 
@@ -46,7 +42,7 @@ void lval_print(lval val);
 // Print an lval followed by a newline character
 void lval_println(lval val);
 
-// Print an lval error
-void lval_print_err(lval val);
+// Free the memory used by the lval
+void lval_del(lval* lval);
 
 #endif
