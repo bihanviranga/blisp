@@ -27,19 +27,35 @@ lval* lval_sym(char* sym) {
   return val;
 }
 
-void lval_print(lval val) {
-  switch (val.type) {
+lval* lval_sexpr() {
+  lval* val = malloc(sizeof(lval));
+  val->type = LVAL_SEXPR;
+  val->count = 0;
+  val->cell = NULL;
+  return val;
+}
+
+void lval_print(lval* val) {
+  switch (val->type) {
     case LVAL_NUM:
-      printf("%li", val.num);
+      printf("%li", val->num);
       break;
 
     case LVAL_ERR:
-      printf("[ERROR] %s", val.err);
+      printf("[ERROR] %s", val->err);
+      break;
+
+    case LVAL_SYM:
+      printf("%s", val->sym);
+      break;
+
+    case LVAL_SEXPR:
+      lval_expr_print(val, '(', ')');
       break;
   }
 }
 
-void lval_println(lval val) {
+void lval_println(lval* val) {
   lval_print(val);
   printf("\n");
 }
@@ -99,4 +115,20 @@ lval* lval_add(lval* x, lval* y) {
   x->cell = realloc(x->cell, sizeof(lval*) * x->count);
   x->cell[x->count - 1] = y;
   return x;
+}
+
+void lval_expr_print(lval* val, char open, char close) {
+  putchar(open);
+
+  for (int i = 0; i < val->count; i++) {
+    // Print lval in cell
+    lval_print(val->cell[i]);
+
+    // Don't print trailing space for last element
+    if (i != (val->count-1)) {
+      putchar(' ');
+    }
+  }
+
+  putchar(close);
 }

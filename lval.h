@@ -39,10 +39,10 @@ lval* lval_sym(char* sym);
 lval* lval_sexpr();
 
 // Print an lval
-void lval_print(lval val);
+void lval_print(lval* val);
 
 // Print an lval followed by a newline character
-void lval_println(lval val);
+void lval_println(lval* val);
 
 // Free the memory used by the lval
 void lval_del(lval* lval);
@@ -55,5 +55,8 @@ lval* lval_read(mpc_ast_t* ast);
 
 // Add the lval y to lval x's cells list
 lval* lval_add(lval* x, lval* y);
+
+// Print an lval expression
+void lval_expr_print(lval* val, char open, char close);
 
 #endif
