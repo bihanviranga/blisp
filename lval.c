@@ -132,3 +132,112 @@ void lval_expr_print(lval* val, char open, char close) {
 
   putchar(close);
 }
+
+lval* lval_eval_sexpr(lval* val) {
+  // Evaluate children
+  for (int i = 0; i < val->count; i++) {
+    val->cell[i] = lval_eval(val->cell[i]);
+  }
+
+  // Check for errors
+  for (int i = 0; i < val->count; i++) {
+    if (val->cell[i]->type == LVAL_ERR) {
+      return lval_take(val, i);
+    }
+  }
+
+  // Handle empty expressions
+  if (val->count == 0) {
+    return lval_take(val, 0);
+  }
+
+  // Handle single expressions
+  if (val->count == 1) {
+    return lval_take(val, 0);
+  }
+
+  // Ensure the first cell is a symbol
+  lval* first = lval_pop(val, 0);
+  if (first->type != LVAL_SYM) {
+    lval_del(first);
+    lval_del(val);
+    return lval_err("S-expression must start with a symbol");
+  }
+
+  // Call builtin with operator
+  lval* result = builtin_op(val, first->sym);
+  lval_del(first);
+
+  return result;
+}
+
+lval* lval_eval(lval* val) {
+  // S-Expressions are evaluated separately
+  if (val->type == LVAL_SEXPR) {
+    return lval_eval_sexpr(val);
+  }
+
+  // Other lval types remain the same
+  return val;
+}
+
+lval* lval_pop(lval* val, int i) {
+  lval* target = val->cell[i];
+
+  // Shift the memory
+  memmove(&(val->cell[i]), &(val->cell[i+1]), sizeof(lval*) * (val->count-i-1));
+
+  val->count--;
+
+  // Reallocate the used memory
+  val->cell = realloc(val->cell, sizeof(lval*) * val->count);
+
+  return target;
+}
+
+lval* lval_take(lval* val, int i) {
+  lval* target = lval_pop(val, i);
+  lval_del(val);
+  return target;
+}
+
+lval* builtin_op(lval* val, char* op) {
+  // Ensure all args are numbers
+  for (int i = 0; i < val->count; i++) {
+    if (val->cell[i]->type != LVAL_NUM) {
+      lval_del(val);
+      return lval_err("Expected a numerical value to operate on");
+    }
+  }
+
+  lval* first = lval_pop(val, 0);
+
+  // If no args and op is substract then perform unary negation
+  if ((strcmp(op, "-") == 0) && val->count == 0) {
+    first->num = -(first->num);
+  }
+
+  while (val->count > 0) {
+    lval* second = lval_pop(val, 0);
+
+    if (strcmp(op, "+") == 0) { first->num += second->num; }
+    if (strcmp(op, "-") == 0) { first->num -= second->num; }
+    if (strcmp(op, "*") == 0) { first->num *= second->num; }
+    if (strcmp(op, "^") == 0) { first->num = pow(first->num, second->num); }
+
+    // Operators below this point (div and mod) require that the second operand
+    // is not zero
+    if (second->num == 0) {
+      lval_del(first);
+      lval_del(second);
+      first = lval_err("Division by zero");
+      break;
+    }
+
+    if (strcmp(op, "/") == 0) { first->num /= second->num; }
+    if (strcmp(op, "%") == 0) { first->num %= second->num; }
+    lval_del(second);
+  }
+  lval_del(val);
+  return first;
+}

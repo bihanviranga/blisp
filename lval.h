@@ -59,4 +59,25 @@ lval* lval_add(lval* x, lval* y);
 // Print an lval expression
 void lval_expr_print(lval* val, char open, char close);
 
+// Evaluate S-expressions
+lval* lval_eval_sexpr(lval* val);
+
+// Evaluate lvals
+lval* lval_eval(lval* val);
+
+/*
+ * Extracts a single element from an S-expression at index i.
+ * The rest of the list is shifted to accomodate the empty slot.
+ */
+lval* lval_pop(lval* val, int i);
+
+/*
+ * Extracts a single element from an S-expression at index i,
+ * and deletes the lval (and the rest of the list).
+ */
+lval* lval_take(lval* val, int i);
+
+// Evaluates lvals that use built-in operators
+lval* builtin_op(lval* val, char* op);
+
 #endif

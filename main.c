@@ -109,9 +109,9 @@ int main(int argc, char** argv) {
 #ifdef BLISP_PRINT_AST
       mpc_ast_print(mpc_result.output);
 #endif
-      /*printf("%ld\n", eval(result.output).num);*/
-      lval result = eval(mpc_result.output);
+      lval* result = lval_eval(lval_read(mpc_result.output));
       lval_println(result);
+      lval_del(result);
       mpc_ast_delete(mpc_result.output);
     } else {
       mpc_err_print(mpc_result.error);
