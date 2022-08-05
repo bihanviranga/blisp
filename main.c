@@ -8,37 +8,37 @@
 #include "lval.h"
 
 // Evalute unary operations
-lval eval_unary_op(char* operator, lval x) {
-  if (strcmp(operator, "-") == 0) return lval_num(-x.num);
+lval* eval_unary_op(char* operator, lval* x) {
+  if (strcmp(operator, "-") == 0) return lval_num(-x->num);
 
-  return lval_err(LERR_BAD_OP);
+  return lval_err("'%c' is not a unary operator");
 }
 
 // Evaluate binary operations
-lval eval_binary_op(char* operator, lval x, lval y) {
-  if (x.type == LVAL_ERR) return x;
-  if (y.type == LVAL_ERR) return y;
+lval* eval_binary_op(char* operator, lval* x, lval* y) {
+  if (x->type == LVAL_ERR) return x;
+  if (y->type == LVAL_ERR) return y;
 
-  if (strcmp(operator, "+") == 0) return lval_num(x.num + y.num);
-  if (strcmp(operator, "-") == 0) return lval_num(x.num - y.num);
-  if (strcmp(operator, "*") == 0) return lval_num(x.num * y.num);
-  if (strcmp(operator, "^") == 0) return lval_num(pow(x.num, y.num));
+  if (strcmp(operator, "+") == 0) return lval_num(x->num + y->num);
+  if (strcmp(operator, "-") == 0) return lval_num(x->num - y->num);
+  if (strcmp(operator, "*") == 0) return lval_num(x->num * y->num);
+  if (strcmp(operator, "^") == 0) return lval_num(pow(x->num, y->num));
 
   // Operators below this point require that the second operand is not zero
-  if (y.num == 0) return lval_err(LERR_DIV_ZERO);
+  if (y->num == 0) return lval_err("Division by zero");
 
-  if (strcmp(operator, "/") == 0) return lval_num(x.num / y.num);
-  if (strcmp(operator, "%") == 0) return lval_num(x.num % y.num);
+  if (strcmp(operator, "/") == 0) return lval_num(x->num / y->num);
+  if (strcmp(operator, "%") == 0) return lval_num(x->num % y->num);
 
-  return lval_err(LERR_BAD_OP);
+  return lval_err("Unrecognized operator '%c'");
 }
 
-lval eval(mpc_ast_t* t) {
+lval* eval(mpc_ast_t* t) {
   // Numbers can be evaluated directly
   if (strstr(t->tag, "number")) {
     errno = 0;
     long value = strtol(t->contents, NULL, 10);
-    return errno != ERANGE ? lval_num(value) : lval_err(LERR_BAD_NUM);
+    return errno != ERANGE ? lval_num(value) : lval_err("Bad number");
   }
 
   // The operator is the second child
@@ -47,7 +47,7 @@ lval eval(mpc_ast_t* t) {
   char* operator = t->children[1]->contents;
 
   // Third child (first operand) is always provided
-  lval result = eval(t->children[2]);
+  lval* result = eval(t->children[2]);
 
   // The rest of the children are iterated over and the result
   // is combined.
