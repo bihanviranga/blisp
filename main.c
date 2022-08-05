@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
   }
 
   // Undefine and delete the parsers
-  mpc_cleanup(4, Number, Symbol, Sexpr, Expr, Blisp);
+  mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Blisp);
 
   return 0;
 }
