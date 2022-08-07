@@ -35,6 +35,14 @@ lval* lval_sexpr() {
   return val;
 }
 
+lval* lval_qexpr() {
+  lval* val = malloc(sizeof(lval));
+  val->type = LVAL_QEXPR;
+  val->count = 0;
+  val->cell = NULL;
+  return val;
+}
+
 void lval_print(lval* val) {
   switch (val->type) {
     case LVAL_NUM:
@@ -51,6 +59,10 @@ void lval_print(lval* val) {
 
     case LVAL_SEXPR:
       lval_expr_print(val, '(', ')');
+      break;
+
+    case LVAL_QEXPR:
+      lval_expr_print(val, '{', '}');
       break;
   }
 }
@@ -69,8 +81,9 @@ void lval_del(lval* val) {
     case LVAL_ERR:  free(val->err);  break;
     case LVAL_SYM:  free(val->sym);  break;
 
-    // For S-Expressions, delete its child elements
+    // For S and Q expressions, delete its child elements
     case LVAL_SEXPR:
+    case LVAL_QEXPR:
       for (int i = 0; i < val->count; i++) {
         lval_del(val->cell[i]);
       }
@@ -97,11 +110,14 @@ lval* lval_read(mpc_ast_t* ast) {
   lval* val = NULL;
   if (strcmp(ast->tag, ">") == 0) val = lval_sexpr();
   if (strstr(ast->tag, "sexpr")) val = lval_sexpr();
+  if (strstr(ast->tag, "qexpr")) val = lval_qexpr();
 
   // Populate the above list with valid expressions
   for (int i = 0; i < ast->children_num; i++) {
     if (strcmp(ast->children[i]->contents, "(") == 0) continue;
     if (strcmp(ast->children[i]->contents, ")") == 0) continue;
+    if (strcmp(ast->children[i]->contents, "{") == 0) continue;
+    if (strcmp(ast->children[i]->contents, "}") == 0) continue;
     if (strcmp(ast->children[i]->tag, "regex") == 0) continue;
 
     val = lval_add(val, lval_read(ast->children[i]));

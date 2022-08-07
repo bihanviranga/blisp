@@ -24,7 +24,7 @@ typedef struct lval {
 } lval;
 
 // Represents the type for lval.type
-enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR };
+enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR };
 
 // Create a new lval from a number
 lval* lval_num(long num);
@@ -37,6 +37,9 @@ lval* lval_sym(char* sym);
 
 // Create a new lval for an S-Expression
 lval* lval_sexpr();
+
+// Create a new lval for a Q-Expression
+lval* lval_qexpr();
 
 // Print an lval
 void lval_print(lval* val);

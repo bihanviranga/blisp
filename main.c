@@ -12,22 +12,25 @@ int main(int argc, char** argv) {
   mpc_parser_t* Number = mpc_new("number");
   mpc_parser_t* Symbol = mpc_new("symbol");
   mpc_parser_t* Sexpr = mpc_new("sexpr"); // S-Expression
+  mpc_parser_t* Qexpr = mpc_new("qexpr"); // Q-Expression
   mpc_parser_t* Expr = mpc_new("expr");
   mpc_parser_t* Blisp = mpc_new("blisp");
 
   // Define the parsers
   mpca_lang(
     MPCA_LANG_DEFAULT,
-    "                                                   \
-      number:   /-?[0-9]+/ ;                            \
-      symbol:   '+' | '-' | '*' | '/' | '%' | '^' ;     \
-      sexpr:    '(' <expr>* ')' ;                       \
-      expr:     <number> | <symbol> | <sexpr> ;         \
-      blisp:    /^/ <expr>* /$/ ;                       \
+    "                                                     \
+      number:   /-?[0-9]+/ ;                              \
+      symbol:   '+' | '-' | '*' | '/' | '%' | '^' ;       \
+      sexpr:    '(' <expr>* ')' ;                         \
+      qexpr:    '{' <expr>* '}' ;                         \
+      expr:     <number> | <symbol> | <sexpr> | <qexpr> ; \
+      blisp:    /^/ <expr>* /$/ ;                         \
     ",
     Number,
     Symbol,
     Sexpr,
+    Qexpr,
     Expr,
     Blisp
   );
@@ -62,7 +65,7 @@ int main(int argc, char** argv) {
   }
 
   // Undefine and delete the parsers
-  mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Blisp);
+  mpc_cleanup(6, Number, Symbol, Sexpr, Qexpr, Expr, Blisp);
 
   return 0;
 }
