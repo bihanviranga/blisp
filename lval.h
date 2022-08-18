@@ -26,7 +26,10 @@ typedef struct lval {
 // Represents the type for lval.type
 enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR };
 
-// Returns an error if the condition is not fulfilled by the lval
+/*
+ * Returns an error if the condition is not fulfilled by the lval
+ * and deletes the lval
+ */
 #define LASSERT(args, condition, error) \
   if (!(condition)) { lval_del(args); return lval_err(error); }
 
@@ -84,6 +87,9 @@ lval* lval_pop(lval* val, int i);
  */
 lval* lval_take(lval* val, int i);
 
+// Adds all cells in y to the cells list in x
+lval* lval_join(lval* x, lval* y);
+
 // Evaluates lvals that use built-in operators
 lval* builtin_op(lval* val, char* op);
 
@@ -98,5 +104,8 @@ lval* builtin_list(lval* val);
 
 // Takes a Q-expr and evaluates it as if it were an S-expr
 lval* builtin_eval(lval* val);
+
+// Takes one or more Q-exprs and returns a Q-expr of them joined together
+lval* builtin_join(lval* val);
 
 #endif

@@ -217,6 +217,16 @@ lval* lval_take(lval* val, int i) {
   return target;
 }
 
+lval* lval_join(lval* x, lval* y) {
+  // Add all cells in y to x
+  while (y->count) {
+    x = lval_add(x, lval_pop(y, 0));
+  }
+
+  lval_del(y);
+  return x;
+}
+
 lval* builtin_op(lval* val, char* op) {
   // Ensure all args are numbers
   for (int i = 0; i < val->count; i++) {
@@ -303,4 +313,20 @@ lval* builtin_eval(lval* val) {
   lval* res = lval_take(val, 0);
   res->type = LVAL_SEXPR;
   return lval_eval(res);
+}
+
+lval* builtin_join(lval* val) {
+  for (int i = 0; i < val->count; i++) {
+    LASSERT(val, val->cell[i]->type == LVAL_QEXPR,
+      "Function 'join' passed incorrect types");
+  }
+
+  lval* res = lval_pop(val, 0);
+
+  while (val->count) {
+    res = lval_join(res, lval_pop(val, 0));
+  }
+
+  lval_del(val);
+  return res;
 }
