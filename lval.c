@@ -288,3 +288,19 @@ lval* builtin_tail(lval* val) {
 
   return res;
 }
+
+lval* builtin_list(lval* val) {
+  val->type = LVAL_QEXPR;
+  return val;
+}
+
+lval* builtin_eval(lval* val) {
+  LASSERT(val, val->count == 1,
+    "Function 'eval' passed too many arguments");
+  LASSERT(val, val->cell[0]->type == LVAL_QEXPR,
+    "Function 'eval' passed incorrect type");
+
+  lval* res = lval_take(val, 0);
+  res->type = LVAL_SEXPR;
+  return lval_eval(res);
+}

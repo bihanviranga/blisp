@@ -93,4 +93,10 @@ lval* builtin_head(lval* val);
 // Takes a Q-expr and returns a Q-expr with the first element removed
 lval* builtin_tail(lval* val);
 
+// Converts the input S-expr into a Q-expr
+lval* builtin_list(lval* val);
+
+// Takes a Q-expr and evaluates it as if it were an S-expr
+lval* builtin_eval(lval* val);
+
 #endif
