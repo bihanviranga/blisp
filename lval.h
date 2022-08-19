@@ -108,4 +108,7 @@ lval* builtin_eval(lval* val);
 // Takes one or more Q-exprs and returns a Q-expr of them joined together
 lval* builtin_join(lval* val);
 
+// Calls the builtin function that corresponds to the symbol at FUNC
+lval* builtin(lval* val, char* func);
+
 #endif

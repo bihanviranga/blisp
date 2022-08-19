@@ -181,7 +181,7 @@ lval* lval_eval_sexpr(lval* val) {
   }
 
   // Call builtin with operator
-  lval* result = builtin_op(val, first->sym);
+  lval* result = builtin(val, first->sym);
   lval_del(first);
 
   return result;
@@ -329,4 +329,16 @@ lval* builtin_join(lval* val) {
 
   lval_del(val);
   return res;
+}
+
+lval* builtin(lval* val, char* func) {
+  if (strcmp("head", func) == 0)  return builtin_head(val);
+  if (strcmp("tail", func) == 0)  return builtin_tail(val);
+  if (strcmp("list", func) == 0)  return builtin_list(val);
+  if (strcmp("eval", func) == 0)  return builtin_eval(val);
+  if (strcmp("join", func) == 0)  return builtin_join(val);
+  if (strstr("+-*/%^", func))     return builtin_op(val, func);
+
+  lval_del(val);
+  return lval_err("Unknown function");
 }
