@@ -143,4 +143,10 @@ lenv* lenv_new();
 // Delete a lenv
 void lenv_del(lenv* env);
 
+// Get a copy of lval that matches the symbol `val` in the environment `env`
+lval* lenv_get(lenv* env, lval* val);
+
+// Put `key` and `val` pair in the `env`. Replaces existing values.
+void lenv_put(lenv* env, lval* key, lval* val);
+
 #endif

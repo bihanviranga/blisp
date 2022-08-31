@@ -405,3 +405,33 @@ void lenv_del(lenv* env) {
   free(env->vals);
   free(env);
 }
+
+lval* lenv_get(lenv* env, lval* val) {
+  for (int i = 0; i < env->count; i++) {
+    if (strcmp(env->syms[i], val->sym) == 0) {
+      return lval_copy(env->vals[i]);
+    }
+  }
+
+  return lval_err("Unbound symbol");
+}
+
+void lenv_put(lenv* env, lval* key, lval* val) {
+  // Iterate to see if the key exists
+  for (int i = 0; i < env->count; i++) {
+    // If key is found, replace the value
+    if (strcmp(env->syms[i], key->sym) == 0) {
+      lval_del(env->vals[i]);
+      env->vals[i] = lval_copy(val);
+      return;
+    }
+  }
+
+  // If key doesn't exist, allocate space for it and copy the k/v pair
+  env->count++;
+  env->vals = realloc(env->vals, sizeof(lval*) * env->count);
+  env->syms = realloc(env->syms, sizeof(char*) * env->count);
+  env->vals[env->count - 1] = lval_copy(val);
+  env->syms[env->count - 1] = malloc(strlen(key->sym) + 1);
+  strcpy(env->syms[env->count - 1], key->sym);
+}
