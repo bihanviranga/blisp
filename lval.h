@@ -103,6 +103,9 @@ lval* lval_take(lval* val, int i);
 // Adds all cells in y to the cells list in x
 lval* lval_join(lval* x, lval* y);
 
+// Makes a copy of the given lval and returns a pointer to it
+lval* lval_copy(lval* val);
+
 // Evaluates lvals that use built-in operators
 lval* builtin_op(lval* val, char* op);
 

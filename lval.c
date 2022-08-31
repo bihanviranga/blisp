@@ -239,6 +239,39 @@ lval* lval_join(lval* x, lval* y) {
   return x;
 }
 
+lval* lval_copy(lval* val) {
+  lval* res = malloc(sizeof(lval));
+  res->type = val->type;
+
+  switch(val->type) {
+    // Functions and numbers can be copied directly
+    case LVAL_NUM: res->num = val->num; break;
+    case LVAL_FUN: res->fun = val->fun; break;
+
+    case LVAL_ERR:
+      res->err = malloc(strlen(val->err) + 1);
+      strcpy(res->err, val->err);
+      break;
+
+    case LVAL_SYM:
+      res->sym = malloc(strlen(val->sym) + 1);
+      strcpy(res->sym, val->sym);
+      break;
+
+    // In lists, copy each sub-expression
+    case LVAL_SEXPR:
+    case LVAL_QEXPR:
+      res->count = val->count;
+      res->cell = malloc(sizeof(lval*) * res->count);
+      for (int i = 0; i < res->count; i++) {
+        res->cell[i] = lval_copy(val->cell[i]);
+      }
+      break;
+  }
+
+  return res;
+}
+
 lval* builtin_op(lval* val, char* op) {
   // Ensure all args are numbers
   for (int i = 0; i < val->count; i++) {
