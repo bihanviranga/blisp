@@ -3,16 +3,26 @@
 
 #include "mpc.h"
 
-// Represents a number or an error.
-typedef struct lval {
+// Forward declarations (to avoid cyclical dependencies)
+struct lval;
+struct lenv;
+typedef struct lval lval;
+typedef struct lenv lenv;
+
+typedef lval*(*lbuiltin)(lenv*, lval*);
+
+struct lval {
   // lval type as defined in the relevant enum
   int type;
+
   // numeric value, if the lval represents a number
   long num;
   // error message, if the lval represents an error
   char* err;
   // symbol, if the lval represents a symbol
   char* sym;
+  // pointer to the builtin function, if the lval is one of those
+  lbuiltin fun;
 
   // If the lval is an s-expression, it contains a list of other values.
   // The following fields are for the location and count of such values:
@@ -21,10 +31,10 @@ typedef struct lval {
   int count;
   // location of values
   struct lval** cell;
-} lval;
+};
 
 // Represents the type for lval.type
-enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR };
+enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR, LVAL_FUN };
 
 /*
  * Returns an error if the condition is not fulfilled by the lval
@@ -47,6 +57,9 @@ lval* lval_sexpr();
 
 // Create a new lval for a Q-Expression
 lval* lval_qexpr();
+
+// Create a new lval for a builtin
+lval* lval_fun(lbuiltin func);
 
 // Print an lval
 void lval_print(lval* val);

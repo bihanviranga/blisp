@@ -17,13 +17,21 @@ int main(int argc, char** argv) {
   mpc_parser_t* Blisp = mpc_new("blisp");
 
   // Define the parsers
+  /*
+   * NOTE: on the 'symbol' regex below.
+   * We need to ignore some characters inside the regex.
+   * To do that, we need to use the backslash.
+   * However, since this is a c-string, the backslash itself
+   * has to be ignored.
+   * Therefore, there are two backslashes everywhere that needs one.
+   * The real regex looks like follows:
+   *    /[a-zA-Z0-9_+\-*%^\/\\=<>!&]+/
+   */
   mpca_lang(
     MPCA_LANG_DEFAULT,
     "                                                     \
       number:   /-?[0-9]+/ ;                              \
-      symbol:   \"list\" | \"head\" | \"tail\" | \"join\" \
-                | \"eval\" | '+' | '-' | '*' | '/' | '%'  \
-                | '^' ;                                   \
+      symbol:   /[a-zA-Z0-9_+\\-*%^\\/\\\\=<>!&]+/ ;      \
       sexpr:    '(' <expr>* ')' ;                         \
       qexpr:    '{' <expr>* '}' ;                         \
       expr:     <number> | <symbol> | <sexpr> | <qexpr> ; \

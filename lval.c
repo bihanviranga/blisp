@@ -43,6 +43,13 @@ lval* lval_qexpr() {
   return val;
 }
 
+lval* lval_fun(lbuiltin func) {
+  lval* val = malloc(sizeof(lval));
+  val->type = LVAL_FUN;
+  val->fun = func;
+  return val;
+}
+
 void lval_print(lval* val) {
   switch (val->type) {
     case LVAL_NUM:
@@ -64,6 +71,10 @@ void lval_print(lval* val) {
     case LVAL_QEXPR:
       lval_expr_print(val, '{', '}');
       break;
+
+    case LVAL_FUN:
+      printf("<function>");
+      break;
   }
 }
 
@@ -74,8 +85,9 @@ void lval_println(lval* val) {
 
 void lval_del(lval* val) {
   switch(val->type) {
-    // Do nothing for numbers
+    // Do nothing for numbers and function pointers
     case LVAL_NUM:  break;
+    case LVAL_FUN:  break;
 
     // lval types that use strings
     case LVAL_ERR:  free(val->err);  break;
