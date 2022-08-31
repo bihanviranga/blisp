@@ -33,6 +33,16 @@ struct lval {
   struct lval** cell;
 };
 
+// The environment - contains key-value pairs
+struct lenv {
+  // number of pairs
+  int count;
+  // the keys/symbols
+  char** syms;
+  // the values
+  lval** vals;
+};
+
 // Represents the type for lval.type
 enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR, LVAL_FUN };
 
@@ -126,5 +136,11 @@ lval* builtin_join(lval* val);
 
 // Calls the builtin function that corresponds to the symbol at FUNC
 lval* builtin(lval* val, char* func);
+
+// Create a new lenv
+lenv* lenv_new();
+
+// Delete a lenv
+void lenv_del(lenv* env);
 
 #endif

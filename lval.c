@@ -387,3 +387,21 @@ lval* builtin(lval* val, char* func) {
   lval_del(val);
   return lval_err("Unknown function");
 }
+
+lenv* lenv_new() {
+  lenv* env = malloc(sizeof(lenv));
+  env->count = 0;
+  env->syms = NULL;
+  env->vals = NULL;
+  return env;
+}
+
+void lenv_del(lenv* env) {
+  for (int i = 0; i < env->count; i++) {
+    free(env->syms[i]);
+    lval_del(env->vals[i]);
+  }
+  free(env->syms);
+  free(env->vals);
+  free(env);
+}
