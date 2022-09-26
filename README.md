@@ -1,6 +1,6 @@
 # blisp
 
-`blisp` is a Lisp variant. Currently under active development.
+`blisp` is a Lisp variant. It is a work in progress.
 
 ## Installation
 
